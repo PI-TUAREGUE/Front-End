@@ -1,4 +1,4 @@
-package com.example.front_end
+package com.tuaregue.agendamento
 
 import io.flutter.embedding.android.FlutterActivity
 
