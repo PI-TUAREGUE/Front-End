@@ -9,10 +9,13 @@ class MyApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return const MaterialApp(
+    return MaterialApp(
       debugShowCheckedModeBanner: false,
       title: 'Agendamento Automotivo',
-      home: AgendaPage(),
+      theme: ThemeData.dark().copyWith(
+        scaffoldBackgroundColor: const Color(0xFF000000),
+      ),
+      home: const AgendaPage(),
     );
   }
 }
