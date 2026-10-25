@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import '../../models/appointment.dart';
+import '../../models/data/repository/appointment_repository.dart';
 import '../widgets/cards/schedule_card.dart';
 import '../widgets/shared/timeline_group.dart';
 
@@ -8,7 +8,8 @@ class AgendaPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final grouped = groupAppointmentsByHour(appointmentsMock);
+    final repository = AppointmentRepository();
+    final grouped = repository.getAppointmentsGroupedByHour();
     final hours = grouped.keys.toList();
 
     return Scaffold(
