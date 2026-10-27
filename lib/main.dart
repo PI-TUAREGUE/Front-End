@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
-import 'views/pages/agenda_page.dart';
+import 'views/pages/main_navigation_page.dart';
+
 void main() {
   runApp(const MyApp());
 }
@@ -15,7 +16,7 @@ class MyApp extends StatelessWidget {
       theme: ThemeData.dark().copyWith(
         scaffoldBackgroundColor: const Color(0xFF000000),
       ),
-      home: const AgendaPage(),
+      home: const MainNavigationPage(),
     );
   }
 }
