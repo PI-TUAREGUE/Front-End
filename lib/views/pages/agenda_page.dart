@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import '../../models/data/repository/appointment_repository.dart';
+import '../../data/repositories/appointment_repository.dart';
 import '../widgets/cards/schedule_card.dart';
 import '../widgets/shared/timeline_group.dart';
 

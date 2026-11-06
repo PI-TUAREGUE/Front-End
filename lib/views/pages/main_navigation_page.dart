@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import '../../models/data/repository/appointment_repository.dart';
+import '../../data/repositories/app_preferences_repository.dart';
 import 'agenda_page.dart';
 
 class MainNavigationPage extends StatefulWidget {
@@ -10,7 +10,7 @@ class MainNavigationPage extends StatefulWidget {
 }
 
 class _MainNavigationPageState extends State<MainNavigationPage> {
-  final AppointmentRepository _repository = AppointmentRepository();
+  final AppPreferencesRepository _repository = AppPreferencesRepository();
   int _currentIndex = 0;
 
   static const List<Widget> _pages = [
