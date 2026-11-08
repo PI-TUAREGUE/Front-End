@@ -37,7 +37,7 @@ class ScheduleCard extends StatelessWidget {
               children: [
                 Expanded(
                   child: Text(
-                    appointment.serviceTitle,
+                    appointment.service.first.name,
                     style: const TextStyle(
                       color: Colors.white,
                       fontSize: 18,
@@ -67,7 +67,7 @@ class ScheduleCard extends StatelessWidget {
                 ),
                 const SizedBox(width: 8),
                 Text(
-                  appointment.clientName,
+                  appointment.client,
                   style: const TextStyle(color: Colors.white70, fontSize: 13),
                 ),
               ],
@@ -84,14 +84,14 @@ class ScheduleCard extends StatelessWidget {
                 ),
                 const SizedBox(width: 8),
                 Text(
-                  appointment.vehicleModel,
+                  appointment.car,
                   style: const TextStyle(color: Colors.white70, fontSize: 13),
                 ),
               ],
             ),
             const SizedBox(height: 14),
 
-            TeamAvatarStack(employees: appointment.mechanics),
+            TeamAvatarStack(employees: appointment.employee),
           ],
         ),
       ),

@@ -10,7 +10,7 @@ class AppointmentRepository {
   Map<int, List<Appointment>> getAppointmentsGroupedByHour() {
     final Map<int, List<Appointment>> grouped = {};
     for (var item in getAppointments()) {
-      final hour = item.dateTime.hour;
+      final hour = item.startDate.hour;
       grouped.putIfAbsent(hour, () => []).add(item);
     }
     return grouped;
