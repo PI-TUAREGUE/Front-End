@@ -1,14 +1,5 @@
+import 'package:front_end/models/invitation.dart';
 import '../network/requester.dart';
-
-enum InvitationStatus {
-  pending('Pendente'),
-  accepted('Aceito'),
-  rejected('Recusado'),
-  cancelled('Cancelado');
-
-  final String label;
-  const InvitationStatus(this.label);
-}
 
 class InvitationService {
   final Requester _requester = Requester();
