@@ -13,7 +13,7 @@ class AppointmentDetailsPage extends StatelessWidget {
       appBar: AppBar(
         backgroundColor: const Color(0xFF000000),
         title: Text(
-          appointment.serviceTitle,
+          appointment.service.first.name,
           style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
         ),
         iconTheme: const IconThemeData(color: Color(0xFFFF7A00)), // Seta de voltar laranja
@@ -24,12 +24,12 @@ class AppointmentDetailsPage extends StatelessWidget {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Text(
-              'Cliente: ${appointment.clientName}',
+              'Cliente: ${appointment.client}',
               style: const TextStyle(color: Colors.white, fontSize: 18),
             ),
             const SizedBox(height: 8),
             Text(
-              'Veículo: ${appointment.vehicleModel}',
+              'Veículo: ${appointment.car}',
               style: const TextStyle(color: Colors.white70, fontSize: 16),
             ),
             const SizedBox(height: 8),
