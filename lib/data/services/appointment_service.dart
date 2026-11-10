@@ -90,4 +90,8 @@ class AppointmentService {
     final response = await _requester.patch('/schedulings/$id/status', body: body);
     return Appointment.fromJson(response as Map<String, dynamic>);
   }
+
+  Future<List<int>> getReceipt(String id) async {
+    return await _requester.getBytes('/schedulings/$id/receipt');
+  }
 }

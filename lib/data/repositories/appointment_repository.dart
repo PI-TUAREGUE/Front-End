@@ -63,4 +63,8 @@ class AppointmentRepository {
     }
     return grouped;
   }
+
+  Future<List<int>> getAppointmentReceipt(String id) async {
+    return await _appointmentService.getReceipt(id);
+  }
 }

@@ -56,6 +56,18 @@ class Requester {
     }
   }
 
+  Future<List<int>> getBytes(String path) async {
+    try {
+      final response = await _dio.get<List<int>>(
+        path,
+        options: Options(responseType: ResponseType.bytes),
+      );
+      return response.data ?? [];
+    } on DioException catch (e) {
+      throw RequestException(_messageFor(e));
+    }
+  }
+
   String _messageFor(DioException e) {
     switch (e.type) {
       case DioExceptionType.connectionTimeout:
