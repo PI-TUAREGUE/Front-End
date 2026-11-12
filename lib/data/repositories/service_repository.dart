@@ -1,31 +1,31 @@
 import '../../models/service.dart';
-import '../services/services_service.dart';
+import '../services/service_service.dart';
 
-class ServicesRepository {
-  final ServicesService _servicesService = ServicesService();
+class ServiceRepository {
+  final ServiceService _serviceService = ServiceService();
 
   Future<List<ServiceModel>> getServices({
     ServiceStatus? status,
     String? name,
   }) async {
-    return await _servicesService.findAll(status: status, name: name);
+    return await _serviceService.findAll(status: status, name: name);
   }
 
   Future<ServiceModel> getServiceById(String id) async {
-    return await _servicesService.findById(id);
+    return await _serviceService.findById(id);
   }
 
   Future<ServiceModel> createService({
     required String name,
     String? avatarUrl,
   }) async {
-    return await _servicesService.create(name: name, avatarUrl: avatarUrl);
+    return await _serviceService.create(name: name, avatarUrl: avatarUrl);
   }
 
   Future<ServiceModel> updateServiceStatus({
     required String id,
     required ServiceStatus status,
   }) async {
-    return await _servicesService.updateStatus(id, status);
+    return await _serviceService.updateStatus(id, status);
   }
 }

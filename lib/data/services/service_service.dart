@@ -1,7 +1,7 @@
 import 'package:front_end/data/network/requester.dart';
 import 'package:front_end/models/service.dart';
 
-class ServicesService {
+class ServiceService {
 
   final Requester _requester = Requester();
 
