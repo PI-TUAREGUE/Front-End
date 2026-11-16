@@ -59,10 +59,11 @@ class Appointment {
       plate: json['plate'] as String? ?? '',
       car: json['car'] as String? ?? '',
       startDate: json['startDate'] != null
-          ? DateTime.tryParse(json['startDate'] as String) ?? DateTime.now()
+          ? (DateTime.tryParse(json['startDate'] as String)?.toLocal() ??
+              DateTime.now())
           : DateTime.now(),
       endDate: json['endDate'] != null
-          ? DateTime.tryParse(json['endDate'] as String)
+          ? DateTime.tryParse(json['endDate'] as String)?.toLocal()
           : null,
       status: SchedulingStatus.fromString(
         json['status'] as String? ?? 'Agendado',

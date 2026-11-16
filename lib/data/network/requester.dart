@@ -1,15 +1,30 @@
 import 'package:dio/dio.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class Requester {
-
   final Dio _dio = Dio(
     BaseOptions(
       baseUrl: 'http://localhost:3000',
       connectTimeout: const Duration(seconds: 10),
       receiveTimeout: const Duration(seconds: 10),
-      headers: {'Content-Type':'application/json'}
-    )
+      headers: {'Content-Type': 'application/json'},
+    ),
   );
+
+  Requester() {
+    _dio.interceptors.add(
+      InterceptorsWrapper(
+        onRequest: (options, handler) async {
+          final prefs = await SharedPreferences.getInstance();
+          final token = prefs.getString('auth_token');
+          if (token != null && token.isNotEmpty) {
+            options.headers['Authorization'] = 'Bearer $token';
+          }
+          return handler.next(options);
+        },
+      ),
+    );
+  }
 
   Future<dynamic> get(String path, {Map<String, dynamic>? queryParameters}) async {
     try {
@@ -90,17 +105,33 @@ class Requester {
   }
 
   String? _messageFromBody(Response? response) {
-  final data = response?.data;
+    final data = response?.data;
 
-  if (data is Map && data['message'] is String) {
-    return data['message'] as String;
-  }
+    if (data is Map) {
+      if (data['errors'] is List && (data['errors'] as List).isNotEmpty) {
+        final errorList = data['errors'] as List;
+        final details = errorList
+            .map((e) {
+              if (e is Map && e['message'] != null) {
+                final field = e['field'] != null ? '${e['field']}: ' : '';
+                return '$field${e['message']}';
+              }
+              return e.toString();
+            })
+            .join('\n');
+        if (details.isNotEmpty) return details;
+      }
 
-  if (data is String) {
-    return data;
-  }
+      if (data['message'] is String) {
+        return data['message'] as String;
+      }
+    }
 
-  return null;
+    if (data is String) {
+      return data;
+    }
+
+    return null;
   }
 }
 

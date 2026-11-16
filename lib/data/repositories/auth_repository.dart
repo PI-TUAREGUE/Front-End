@@ -28,4 +28,8 @@ class AuthRepository {
   }) async {
     await _authService.resetPassword(token, newPassword);
   }
+
+  Future<String?> getCurrentUserId() async {
+    return await _authService.getCurrentUserId();
+  }
 }
