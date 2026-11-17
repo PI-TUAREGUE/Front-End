@@ -258,12 +258,20 @@ class _EmployeeDetailsPageState extends State<EmployeeDetailsPage> {
           children: [
             Stack(
               children: [
-                Image.asset(
-                  'assets/images/mecanicoTelaDados.jpg',
-                  height: 380,
-                  width: double.infinity,
-                  fit: BoxFit.cover,
-                  alignment: Alignment.topCenter,
+                ColorFiltered(
+                  colorFilter: const ColorFilter.matrix(<double>[
+                    0.13, 0.43, 0.04, 0, 0,
+                    0.13, 0.43, 0.04, 0, 0,
+                    0.13, 0.43, 0.04, 0, 0,
+                    0, 0, 0, 1, 0,
+                  ]),
+                  child: Image.asset(
+                    'assets/images/mecanicoTelaDados.jpg',
+                    height: 380,
+                    width: double.infinity,
+                    fit: BoxFit.cover,
+                    alignment: Alignment.topCenter,
+                  ),
                 ),
                 Positioned.fill(
                   child: DecoratedBox(
@@ -272,12 +280,12 @@ class _EmployeeDetailsPageState extends State<EmployeeDetailsPage> {
                         begin: Alignment.topCenter,
                         end: Alignment.bottomCenter,
                         colors: [
-                          const Color(0x4D000000),
-                          Colors.transparent,
-                          const Color(0xB3000000),
+                          const Color(0x80000000),
+                          const Color(0x33000000),
+                          const Color(0xD9000000),
                           const Color(0xFF000000),
                         ],
-                        stops: const [0.0, 0.4, 0.85, 1.0],
+                        stops: const [0.0, 0.35, 0.75, 1.0],
                       ),
                     ),
                   ),
