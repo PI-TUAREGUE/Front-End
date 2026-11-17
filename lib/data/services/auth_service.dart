@@ -67,4 +67,45 @@ class AuthService {
       return null;
     }
   }
+
+  Future<String?> getCurrentUserName() async {
+    final prefs = await SharedPreferences.getInstance();
+    final token = prefs.getString(_tokenKey);
+    if (token == null || token.isEmpty) return null;
+    try {
+      final parts = token.split('.');
+      if (parts.length != 3) return null;
+      final payload = base64Url.normalize(parts[1]);
+      final decoded = utf8.decode(base64Url.decode(payload));
+      final map = jsonDecode(decoded);
+      return map['name'] as String?;
+    } catch (_) {
+      return null;
+    }
+  }
+
+  Future<List<String>> getCurrentUserRoles() async {
+    final prefs = await SharedPreferences.getInstance();
+    final token = prefs.getString(_tokenKey);
+    if (token == null || token.isEmpty) return [];
+    try {
+      final parts = token.split('.');
+      if (parts.length != 3) return [];
+      final payload = base64Url.normalize(parts[1]);
+      final decoded = utf8.decode(base64Url.decode(payload));
+      final map = jsonDecode(decoded);
+      final roles = map['roles'];
+      if (roles is List) {
+        return roles.map((r) => r.toString()).toList();
+      }
+      return [];
+    } catch (_) {
+      return [];
+    }
+  }
+
+  Future<bool> isCurrentUserAdmin() async {
+    final roles = await getCurrentUserRoles();
+    return roles.contains('Administrador');
+  }
 }
