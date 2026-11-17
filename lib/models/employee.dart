@@ -53,6 +53,61 @@ class Employee {
 
   String get rolesFormatted => roles.map((r) => r.label).join(', ');
 
+  String get formattedCpf {
+    final clean = cpf.replaceAll(RegExp(r'\D'), '');
+    if (clean.length == 11) {
+      return '${clean.substring(0, 3)}.${clean.substring(3, 6)}.${clean.substring(6, 9)}-${clean.substring(9)}';
+    }
+    return cpf;
+  }
+
+  String get formattedCreatedAt {
+    final date = createdAt?.toLocal() ?? DateTime.now();
+    final d = date.day.toString().padLeft(2, '0');
+    final m = date.month.toString().padLeft(2, '0');
+    final y = date.year;
+    return '$d/$m/$y';
+  }
+
+  String get formattedUpdatedAt {
+    final date = (updatedAt ?? createdAt)?.toLocal() ?? DateTime.now();
+    final d = date.day.toString().padLeft(2, '0');
+    final m = date.month.toString().padLeft(2, '0');
+    final y = date.year;
+    return '$d/$m/$y';
+  }
+
+  String get rolesDisplay {
+    return roles.map((r) {
+      if (r == EmployeeRole.admin) return 'Admin';
+      return r.label;
+    }).join(', ');
+  }
+
+  Employee copyWith({
+    String? id,
+    String? name,
+    String? cpf,
+    String? email,
+    List<EmployeeRole>? roles,
+    EmployeeStatus? status,
+    String? avatarUrl,
+    DateTime? createdAt,
+    DateTime? updatedAt,
+  }) {
+    return Employee(
+      id: id ?? this.id,
+      name: name ?? this.name,
+      cpf: cpf ?? this.cpf,
+      email: email ?? this.email,
+      roles: roles ?? this.roles,
+      status: status ?? this.status,
+      avatarUrl: avatarUrl ?? this.avatarUrl,
+      createdAt: createdAt ?? this.createdAt,
+      updatedAt: updatedAt ?? this.updatedAt,
+    );
+  }
+
   factory Employee.fromJson(Map<String, dynamic> json) {
     return Employee(
       id: json['_id'] as String? ?? json['id'] as String? ?? '',

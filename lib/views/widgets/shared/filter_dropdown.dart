@@ -1,49 +1,59 @@
 import 'package:flutter/material.dart';
 
-enum ServiceFilterOption {
-  date('Data'),
-  name('Nome (A-Z)'),
-  active('Ativos'),
-  inactive('Inativos');
-
+class FilterDropdownOption<T> {
+  final T value;
   final String label;
-  const ServiceFilterOption(this.label);
+
+  const FilterDropdownOption({
+    required this.value,
+    required this.label,
+  });
 }
 
-class ServiceFilterDropdown extends StatelessWidget {
-  final ServiceFilterOption selectedFilter;
-  final ValueChanged<ServiceFilterOption> onSelected;
+class FilterDropdown<T> extends StatelessWidget {
+  final String prefixText;
+  final T selectedValue;
+  final List<FilterDropdownOption<T>> options;
+  final ValueChanged<T> onSelected;
 
-  const ServiceFilterDropdown({
+  const FilterDropdown({
     super.key,
-    required this.selectedFilter,
+    this.prefixText = 'Filtrar por',
+    required this.selectedValue,
+    required this.options,
     required this.onSelected,
   });
+
+  String get _currentLabel {
+    final match = options.where((o) => o.value == selectedValue);
+    if (match.isNotEmpty) return match.first.label;
+    return options.isNotEmpty ? options.first.label : '';
+  }
 
   @override
   Widget build(BuildContext context) {
     return Row(
       children: [
-        const Text(
-          'Filtrar por',
-          style: TextStyle(
+        Text(
+          prefixText,
+          style: const TextStyle(
             color: Colors.white70,
             fontSize: 13,
           ),
         ),
         const SizedBox(width: 8),
-        PopupMenuButton<ServiceFilterOption>(
-          initialValue: selectedFilter,
+        PopupMenuButton<T>(
+          initialValue: selectedValue,
           onSelected: onSelected,
           color: const Color(0xFF28282B),
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(12),
           ),
           itemBuilder: (context) {
-            return ServiceFilterOption.values.map((opt) {
-              final isCurrent = selectedFilter == opt;
-              return PopupMenuItem(
-                value: opt,
+            return options.map((opt) {
+              final isCurrent = selectedValue == opt.value;
+              return PopupMenuItem<T>(
+                value: opt.value,
                 child: Text(
                   opt.label,
                   style: TextStyle(
@@ -71,7 +81,7 @@ class ServiceFilterDropdown extends StatelessWidget {
               mainAxisSize: MainAxisSize.min,
               children: [
                 Text(
-                  selectedFilter.label,
+                  _currentLabel,
                   style: const TextStyle(
                     color: Colors.white,
                     fontSize: 13,

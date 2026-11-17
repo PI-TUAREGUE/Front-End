@@ -4,10 +4,20 @@ import '../../models/service.dart';
 import '../../viewmodels/service_viewmodel.dart';
 import '../widgets/cards/service_card.dart';
 import '../widgets/services/create_service_modal.dart';
-import '../widgets/services/new_service_button.dart';
-import '../widgets/services/service_filter_dropdown.dart';
-import '../widgets/services/services_empty_state.dart';
+import '../widgets/shared/empty_state_widget.dart';
+import '../widgets/shared/filter_dropdown.dart';
+import '../widgets/shared/primary_add_button.dart';
 import '../widgets/shared/timeline_group.dart';
+
+enum ServiceFilterOption {
+  date('Data'),
+  name('Nome (A-Z)'),
+  active('Ativos'),
+  inactive('Inativos');
+
+  final String label;
+  const ServiceFilterOption(this.label);
+}
 
 class ServicesPage extends StatefulWidget {
   const ServicesPage({super.key});
@@ -136,15 +146,22 @@ class _ServicesPageState extends State<ServicesPage> {
                       ),
                     ),
                     const SizedBox(height: 18),
-                    ServiceFilterDropdown(
-                      selectedFilter: _selectedFilter,
+                    FilterDropdown<ServiceFilterOption>(
+                      selectedValue: _selectedFilter,
+                      options: ServiceFilterOption.values
+                          .map((o) => FilterDropdownOption(
+                                value: o,
+                                label: o.label,
+                              ))
+                          .toList(),
                       onSelected: (option) {
                         setState(() => _selectedFilter = option);
                       },
                     ),
                     const SizedBox(height: 18),
                     if (_isAdmin) ...[
-                      NewServiceButton(
+                      PrimaryAddButton(
+                        label: 'Novo Serviço',
                         onTap: _openCreateServiceModal,
                       ),
                       const SizedBox(height: 24),
@@ -161,7 +178,10 @@ class _ServicesPageState extends State<ServicesPage> {
                         ),
                       ),
                     ] else if (groupKeys.isEmpty) ...[
-                      const ServicesEmptyState(),
+                      const EmptyStateWidget(
+                        icon: Icons.build_circle_outlined,
+                        message: 'Nenhum serviço encontrado',
+                      ),
                     ] else ...[
                       for (int i = 0; i < groupKeys.length; i++) ...[
                         TimelineGroup(

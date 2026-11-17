@@ -1,10 +1,12 @@
 import 'package:flutter/material.dart';
 
-class NewServiceButton extends StatelessWidget {
+class PrimaryAddButton extends StatelessWidget {
+  final String label;
   final VoidCallback onTap;
 
-  const NewServiceButton({
+  const PrimaryAddButton({
     super.key,
+    required this.label,
     required this.onTap,
   });
 
@@ -18,19 +20,19 @@ class NewServiceButton extends StatelessWidget {
           color: const Color(0xFFFF7A00),
           borderRadius: BorderRadius.circular(14),
         ),
-        child: const Row(
+        child: Row(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
             Text(
-              'Novo Serviço',
-              style: TextStyle(
+              label,
+              style: const TextStyle(
                 color: Colors.white,
                 fontSize: 15,
                 fontWeight: FontWeight.bold,
               ),
             ),
-            SizedBox(width: 8),
-            Icon(
+            const SizedBox(width: 8),
+            const Icon(
               Icons.add_circle_outline,
               color: Colors.white,
               size: 20,

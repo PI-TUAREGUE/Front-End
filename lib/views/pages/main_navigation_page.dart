@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import '../../data/repositories/app_preferences_repository.dart';
 import 'agenda_page.dart';
+import 'employees_page.dart';
 import 'services_page.dart';
 
 class MainNavigationPage extends StatefulWidget {
@@ -17,12 +18,7 @@ class _MainNavigationPageState extends State<MainNavigationPage> {
   static const List<Widget> _pages = [
     AgendaPage(),
     ServicesPage(),
-    Center(
-      child: Text(
-        'Lista de Colaboradores',
-        style: TextStyle(color: Colors.white, fontSize: 18),
-      ),
-    ),
+    EmployeesPage(),
     Center(
       child: Text(
         'Meu Perfil',

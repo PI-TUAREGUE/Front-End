@@ -1,24 +1,31 @@
 import 'package:flutter/material.dart';
 
-class ServicesEmptyState extends StatelessWidget {
-  const ServicesEmptyState({super.key});
+class EmptyStateWidget extends StatelessWidget {
+  final IconData icon;
+  final String message;
+
+  const EmptyStateWidget({
+    super.key,
+    required this.icon,
+    required this.message,
+  });
 
   @override
   Widget build(BuildContext context) {
-    return const Center(
+    return Center(
       child: Padding(
-        padding: EdgeInsets.symmetric(vertical: 50),
+        padding: const EdgeInsets.symmetric(vertical: 50),
         child: Column(
           children: [
             Icon(
-              Icons.build_circle_outlined,
+              icon,
               size: 48,
               color: Colors.white30,
             ),
-            SizedBox(height: 12),
+            const SizedBox(height: 12),
             Text(
-              'Nenhum serviço encontrado',
-              style: TextStyle(
+              message,
+              style: const TextStyle(
                 color: Colors.white70,
                 fontSize: 15,
               ),
