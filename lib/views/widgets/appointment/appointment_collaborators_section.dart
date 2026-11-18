@@ -87,10 +87,10 @@ class AppointmentCollaboratorsSection extends StatelessWidget {
                           ),
                         ),
                         child: ClipOval(
-                          child: emp.avatarUrl != null &&
-                                  emp.avatarUrl!.isNotEmpty
+                          child: emp.fullAvatarUrl != null &&
+                                  emp.fullAvatarUrl!.isNotEmpty
                               ? Image.network(
-                                  emp.avatarUrl!,
+                                  emp.fullAvatarUrl!,
                                   fit: BoxFit.cover,
                                   errorBuilder:
                                       (context, error, stackTrace) =>

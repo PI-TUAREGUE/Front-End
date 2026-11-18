@@ -62,6 +62,19 @@ class Requester {
     }
   }
 
+  Future<dynamic> patchMultipart(String path, FormData formData) async {
+    try {
+      final response = await _dio.patch(
+        path,
+        data: formData,
+        options: Options(contentType: 'multipart/form-data'),
+      );
+      return response.data;
+    } on DioException catch (e) {
+      throw RequestException(_messageFor(e));
+    }
+  }
+
   Future<dynamic> delete(String path, {dynamic body}) async {
     try {
       final response = await _dio.delete(path, data: body);

@@ -53,6 +53,17 @@ class Employee {
 
   String get rolesFormatted => roles.map((r) => r.label).join(', ');
 
+  String? get fullAvatarUrl {
+    if (avatarUrl == null || avatarUrl!.isEmpty) return null;
+    if (avatarUrl!.startsWith('http://') || avatarUrl!.startsWith('https://')) {
+      return avatarUrl;
+    }
+    final cleanPath = avatarUrl!.replaceAll(r'\', '/');
+    final formattedPath =
+        cleanPath.startsWith('/') ? cleanPath.substring(1) : cleanPath;
+    return 'http://localhost:3000/$formattedPath';
+  }
+
   String get formattedCpf {
     final clean = cpf.replaceAll(RegExp(r'\D'), '');
     if (clean.length == 11) {

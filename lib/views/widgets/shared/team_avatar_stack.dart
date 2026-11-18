@@ -65,9 +65,9 @@ class TeamAvatarStack extends StatelessWidget {
         border: Border.all(color: const Color(0xFF28282B), width: 2),
       ),
       child: ClipOval(
-        child: employee.avatarUrl != null
+        child: employee.fullAvatarUrl != null
             ? Image.network(
-                employee.avatarUrl!,
+                employee.fullAvatarUrl!,
                 fit: BoxFit.cover,
                 errorBuilder: (_, _, _) => _buildFallbackIcon(),
               )
