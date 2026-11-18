@@ -1,20 +1,23 @@
 import 'package:flutter/material.dart';
-import '../../data/repositories/app_preferences_repository.dart';
 import 'agenda_page.dart';
 import 'employees_page.dart';
 import 'profile_page.dart';
 import 'services_page.dart';
 
 class MainNavigationPage extends StatefulWidget {
-  const MainNavigationPage({super.key});
+  final int initialIndex;
+
+  const MainNavigationPage({
+    super.key,
+    this.initialIndex = 0,
+  });
 
   @override
   State<MainNavigationPage> createState() => _MainNavigationPageState();
 }
 
 class _MainNavigationPageState extends State<MainNavigationPage> {
-  final AppPreferencesRepository _repository = AppPreferencesRepository();
-  int _currentIndex = 0;
+  late int _currentIndex;
 
   static const List<Widget> _pages = [
     AgendaPage(),
@@ -26,22 +29,13 @@ class _MainNavigationPageState extends State<MainNavigationPage> {
   @override
   void initState() {
     super.initState();
-    _loadSavedTab();
+    _currentIndex = widget.initialIndex;
   }
 
-  Future<void> _loadSavedTab() async {
-    final savedTab = await _repository.getSelectedTab();
-    if (!mounted) return;
-    setState(() {
-      _currentIndex = savedTab;
-    });
-  }
-
-  Future<void> _onTabTapped(int index) async {
+  void _onTabTapped(int index) {
     setState(() {
       _currentIndex = index;
     });
-    await _repository.saveSelectedTab(index);
   }
 
   @override
