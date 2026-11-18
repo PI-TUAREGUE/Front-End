@@ -49,7 +49,29 @@ class AuthService {
   Future<bool> isAuthenticated() async {
     final prefs = await SharedPreferences.getInstance();
     final token = prefs.getString(_tokenKey);
-    return token != null && token.isNotEmpty;
+    if (token == null || token.isEmpty) return false;
+    try {
+      final parts = token.split('.');
+      if (parts.length != 3) {
+        await logout();
+        return false;
+      }
+      final payload = base64Url.normalize(parts[1]);
+      final decoded = utf8.decode(base64Url.decode(payload));
+      final map = jsonDecode(decoded);
+      final exp = map['exp'];
+      if (exp is int) {
+        final expiryDate = DateTime.fromMillisecondsSinceEpoch(exp * 1000);
+        if (DateTime.now().isAfter(expiryDate)) {
+          await logout();
+          return false;
+        }
+      }
+      return true;
+    } catch (_) {
+      await logout();
+      return false;
+    }
   }
 
   Future<String?> getCurrentUserId() async {
