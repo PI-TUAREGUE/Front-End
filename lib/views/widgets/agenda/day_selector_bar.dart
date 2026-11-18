@@ -18,8 +18,10 @@ class DaySelectorBar extends StatefulWidget {
   State<DaySelectorBar> createState() => _DaySelectorBarState();
 }
 
-class _DaySelectorBarState extends State<DaySelectorBar> {
-  final ScrollController _scrollController = ScrollController();
+class _DaySelectorBarState extends State<DaySelectorBar>
+    with WidgetsBindingObserver {
+  ScrollController? _scrollController;
+  final Map<int, GlobalKey> _dayKeys = {};
 
   static const List<String> _weekdays = [
     'Seg',
@@ -64,39 +66,115 @@ class _DaySelectorBarState extends State<DaySelectorBar> {
   int get _daysInMonth =>
       DateTime(widget.selectedDate.year, widget.selectedDate.month + 1, 0).day;
 
+  GlobalKey _getKeyForDay(int day) =>
+      _dayKeys.putIfAbsent(day, () => GlobalKey());
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    if (_scrollController == null) {
+      final initialOffset = _calculateTargetOffset();
+      _scrollController = ScrollController(initialScrollOffset: initialOffset);
+    }
+  }
+
   @override
   void initState() {
     super.initState();
-    WidgetsBinding.instance.addPostFrameCallback((_) => _scrollToSelectedDay());
+    WidgetsBinding.instance.addObserver(this);
+    _scheduleCentering(animate: false);
   }
 
   @override
   void didUpdateWidget(DaySelectorBar oldWidget) {
     super.didUpdateWidget(oldWidget);
     if (oldWidget.selectedDate != widget.selectedDate) {
-      WidgetsBinding.instance.addPostFrameCallback((_) => _scrollToSelectedDay());
+      _scheduleCentering(animate: true);
+    } else {
+      _scheduleCentering(animate: false);
     }
   }
 
   @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    if (state == AppLifecycleState.resumed) {
+      _scheduleCentering(animate: false);
+    }
+  }
+
+  void _scheduleCentering({bool animate = false}) {
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (!mounted) return;
+      _scrollToSelectedDay(animate: animate);
+    });
+    Future.delayed(const Duration(milliseconds: 100), () {
+      if (!mounted) return;
+      _scrollToSelectedDay(animate: animate);
+    });
+    Future.delayed(const Duration(milliseconds: 300), () {
+      if (!mounted) return;
+      _scrollToSelectedDay(animate: animate);
+    });
+  }
+
+  @override
   void dispose() {
-    _scrollController.dispose();
+    WidgetsBinding.instance.removeObserver(this);
+    _scrollController?.dispose();
     super.dispose();
   }
 
-  void _scrollToSelectedDay() {
-    if (!_scrollController.hasClients) return;
+  double _calculateTargetOffset([double? customViewportWidth]) {
     final targetIndex = widget.selectedDate.day - 1;
-    const itemWidth = 56.0;
+    const itemWidth = 46.0;
+    const separatorWidth = 10.0;
+    const itemSpacing = itemWidth + separatorWidth;
+
     final screenWidth = MediaQuery.of(context).size.width;
-    final targetOffset = (targetIndex * itemWidth) - (screenWidth / 2) + 23;
-    final maxScroll = _scrollController.position.maxScrollExtent;
-    final offset = targetOffset.clamp(0.0, maxScroll);
-    _scrollController.animateTo(
-      offset,
-      duration: const Duration(milliseconds: 300),
-      curve: Curves.easeOut,
-    );
+    final viewportWidth = customViewportWidth ??
+        (screenWidth > 40.0 ? screenWidth - 40.0 : screenWidth);
+
+    final totalContentWidth = (_daysInMonth * itemSpacing) - separatorWidth;
+    final maxScroll =
+        (totalContentWidth - viewportWidth).clamp(0.0, double.infinity);
+
+    final itemCenter = (targetIndex * itemSpacing) + (itemWidth / 2);
+    final targetOffset = itemCenter - (viewportWidth / 2);
+
+    return targetOffset.clamp(0.0, maxScroll);
+  }
+
+  void _scrollToSelectedDay({bool animate = true}) {
+    final targetContext = _dayKeys[widget.selectedDate.day]?.currentContext;
+    if (targetContext != null && targetContext.mounted) {
+      Scrollable.ensureVisible(
+        targetContext,
+        alignment: 0.5,
+        duration: animate ? const Duration(milliseconds: 300) : Duration.zero,
+        curve: Curves.easeOut,
+      );
+      return;
+    }
+
+    if (_scrollController == null || !_scrollController!.hasClients) return;
+
+    final position = _scrollController!.position;
+    final maxScroll = position.maxScrollExtent;
+    if (maxScroll <= 0) return;
+
+    final viewportWidth = position.viewportDimension;
+    final offset = _calculateTargetOffset(viewportWidth);
+    final clampedOffset = offset.clamp(0.0, maxScroll);
+
+    if (animate) {
+      _scrollController!.animateTo(
+        clampedOffset,
+        duration: const Duration(milliseconds: 300),
+        curve: Curves.easeOut,
+      );
+    } else {
+      _scrollController!.jumpTo(clampedOffset);
+    }
   }
 
   Future<void> _openMonthYearPicker() async {
@@ -210,28 +288,30 @@ class _DaySelectorBarState extends State<DaySelectorBar> {
               const SizedBox(height: 18),
               SizedBox(
                 height: 84,
-                child: ListView.separated(
+                child: SingleChildScrollView(
                   controller: _scrollController,
                   scrollDirection: Axis.horizontal,
                   physics: const BouncingScrollPhysics(),
-                  itemCount: _daysInMonth,
-                  separatorBuilder: (context, index) =>
-                      const SizedBox(width: 10),
-                  itemBuilder: (context, index) {
-                    final dayNumber = index + 1;
-                    final dayDate =
-                        DateTime(currentYear, currentMonth, dayNumber);
-                    final weekdayIndex = dayDate.weekday - 1;
-                    final label = _weekdays[weekdayIndex];
-                    final isSelected = dayNumber == widget.selectedDate.day;
-
-                    return DaySelectorItem(
-                      dayNumber: dayNumber,
-                      label: label,
-                      isSelected: isSelected,
-                      onTap: () => widget.onDateSelected(dayDate),
-                    );
-                  },
+                  child: Row(
+                    children: [
+                      for (int index = 0; index < _daysInMonth; index++) ...[
+                        if (index > 0) const SizedBox(width: 10),
+                        DaySelectorItem(
+                          key: _getKeyForDay(index + 1),
+                          dayNumber: index + 1,
+                          label: _weekdays[DateTime(
+                            currentYear,
+                            currentMonth,
+                            index + 1,
+                          ).weekday - 1],
+                          isSelected: (index + 1) == widget.selectedDate.day,
+                          onTap: () => widget.onDateSelected(
+                            DateTime(currentYear, currentMonth, index + 1),
+                          ),
+                        ),
+                      ],
+                    ],
+                  ),
                 ),
               ),
             ],

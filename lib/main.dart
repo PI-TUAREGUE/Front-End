@@ -1,12 +1,20 @@
 import 'package:flutter/material.dart';
+import 'data/repositories/auth_repository.dart';
 import 'views/pages/login_page.dart';
+import 'views/pages/main_navigation_page.dart';
 
-void main() {
-  runApp(const MyApp());
+void main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+  final authRepository = AuthRepository();
+  final isLoggedIn = await authRepository.isLoggedIn();
+
+  runApp(MyApp(isLoggedIn: isLoggedIn));
 }
 
 class MyApp extends StatelessWidget {
-  const MyApp({super.key});
+  final bool isLoggedIn;
+
+  const MyApp({super.key, this.isLoggedIn = false});
 
   @override
   Widget build(BuildContext context) {
@@ -16,7 +24,7 @@ class MyApp extends StatelessWidget {
       theme: ThemeData.dark().copyWith(
         scaffoldBackgroundColor: const Color(0xFF000000),
       ),
-      home: const LoginPage(),
+      home: isLoggedIn ? const MainNavigationPage() : const LoginPage(),
     );
   }
 }

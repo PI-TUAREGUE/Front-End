@@ -16,13 +16,14 @@ class AgendaPage extends StatefulWidget {
   State<AgendaPage> createState() => _AgendaPageState();
 }
 
-class _AgendaPageState extends State<AgendaPage> {
+class _AgendaPageState extends State<AgendaPage> with WidgetsBindingObserver {
   late final AppointmentViewModel _viewModel;
   late final InvitationViewModel _invitationViewModel;
 
   @override
   void initState() {
     super.initState();
+    WidgetsBinding.instance.addObserver(this);
     _viewModel = AppointmentViewModel();
     _invitationViewModel = InvitationViewModel();
 
@@ -32,6 +33,22 @@ class _AgendaPageState extends State<AgendaPage> {
 
     _viewModel.loadAppointments();
     _invitationViewModel.loadMyInvitations();
+  }
+
+  @override
+  void dispose() {
+    WidgetsBinding.instance.removeObserver(this);
+    _viewModel.dispose();
+    _invitationViewModel.dispose();
+    super.dispose();
+  }
+
+  @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    if (state == AppLifecycleState.resumed) {
+      final now = DateTime.now();
+      _viewModel.selectDate(now);
+    }
   }
 
   Future<void> _navigateToAddAppointment() async {
