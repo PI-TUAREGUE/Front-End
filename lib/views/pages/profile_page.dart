@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:image_picker/image_picker.dart';
 import '../../data/repositories/auth_repository.dart';
 import '../../data/repositories/employee_repository.dart';
 import '../../models/employee.dart';
@@ -17,6 +18,7 @@ class _ProfilePageState extends State<ProfilePage> {
 
   Employee? _employee;
   bool _isLoading = true;
+  bool _isUploadingAvatar = false;
   String? _errorMessage;
 
   @override
@@ -111,25 +113,195 @@ class _ProfilePageState extends State<ProfilePage> {
     );
   }
 
-  Widget _buildAvatar(Employee employee) {
-    return Container(
-      width: 130,
-      height: 130,
-      decoration: BoxDecoration(
-        shape: BoxShape.circle,
-        border: Border.all(
-          color: const Color(0xFF28282B),
-          width: 3,
+  Future<void> _pickAndUploadAvatar() async {
+    if (_employee == null || _isUploadingAvatar) return;
+
+    final source = await showModalBottomSheet<ImageSource>(
+      context: context,
+      backgroundColor: const Color(0xFF1E1E22),
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+      ),
+      builder: (ctx) => SafeArea(
+        child: Padding(
+          padding: const EdgeInsets.symmetric(vertical: 20, horizontal: 16),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Container(
+                width: 40,
+                height: 4,
+                margin: const EdgeInsets.only(bottom: 20),
+                decoration: BoxDecoration(
+                  color: Colors.white24,
+                  borderRadius: BorderRadius.circular(2),
+                ),
+              ),
+              const Text(
+                'Alterar foto de perfil',
+                style: TextStyle(
+                  color: Colors.white,
+                  fontSize: 18,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+              const SizedBox(height: 20),
+              ListTile(
+                leading: const Icon(
+                  Icons.camera_alt_outlined,
+                  color: Color(0xFFFF7A00),
+                ),
+                title: const Text(
+                  'Tirar foto',
+                  style: TextStyle(color: Colors.white),
+                ),
+                onTap: () => Navigator.of(ctx).pop(ImageSource.camera),
+              ),
+              ListTile(
+                leading: const Icon(
+                  Icons.photo_library_outlined,
+                  color: Color(0xFFFF7A00),
+                ),
+                title: const Text(
+                  'Escolher da galeria',
+                  style: TextStyle(color: Colors.white),
+                ),
+                onTap: () => Navigator.of(ctx).pop(ImageSource.gallery),
+              ),
+            ],
+          ),
         ),
       ),
-      child: ClipOval(
-        child: employee.avatarUrl != null && employee.avatarUrl!.isNotEmpty
-            ? Image.network(
-                employee.avatarUrl!,
-                fit: BoxFit.cover,
-                errorBuilder: (context, error, stackTrace) => _buildFallbackAvatar(),
-              )
-            : _buildFallbackAvatar(),
+    );
+
+    if (source == null || !mounted) return;
+
+    try {
+      final picker = ImagePicker();
+      final pickedFile = await picker.pickImage(
+        source: source,
+        maxWidth: 1024,
+        maxHeight: 1024,
+        imageQuality: 85,
+      );
+
+      if (pickedFile == null || !mounted) return;
+
+      setState(() {
+        _isUploadingAvatar = true;
+      });
+
+      final updatedEmployee = await _employeeRepository.updateAvatar(
+        id: _employee!.id,
+        filePath: pickedFile.path,
+      );
+
+      PaintingBinding.instance.imageCache.clear();
+      PaintingBinding.instance.imageCache.clearLiveImages();
+
+      if (!mounted) return;
+
+      setState(() {
+        _employee = updatedEmployee;
+        _isUploadingAvatar = false;
+      });
+
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Foto de perfil atualizada com sucesso!'),
+          backgroundColor: Color(0xFF16A34A),
+        ),
+      );
+    } catch (e) {
+      if (!mounted) return;
+      setState(() {
+        _isUploadingAvatar = false;
+      });
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('Erro ao atualizar foto: $e'),
+          backgroundColor: const Color(0xFFDC2626),
+        ),
+      );
+    }
+  }
+
+  Widget _buildAvatar(Employee employee) {
+    final avatarUrl = employee.fullAvatarUrl;
+
+    return Center(
+      child: Stack(
+        clipBehavior: Clip.none,
+        children: [
+          Container(
+            width: 130,
+            height: 130,
+            decoration: BoxDecoration(
+              shape: BoxShape.circle,
+              border: Border.all(
+                color: const Color(0xFF28282B),
+                width: 3,
+              ),
+            ),
+            child: ClipOval(
+              child: avatarUrl != null && avatarUrl.isNotEmpty
+                  ? Image.network(
+                      avatarUrl,
+                      key: ValueKey(avatarUrl),
+                      fit: BoxFit.cover,
+                      errorBuilder: (context, error, stackTrace) =>
+                          _buildFallbackAvatar(),
+                    )
+                  : _buildFallbackAvatar(),
+            ),
+          ),
+          if (_isUploadingAvatar)
+            Container(
+              width: 130,
+              height: 130,
+              decoration: BoxDecoration(
+                shape: BoxShape.circle,
+                color: Colors.black.withValues(alpha: 0.6),
+              ),
+              child: const Center(
+                child: CircularProgressIndicator(
+                  color: Color(0xFFFF7A00),
+                  strokeWidth: 3,
+                ),
+              ),
+            ),
+          Positioned(
+            bottom: 2,
+            right: 2,
+            child: GestureDetector(
+              onTap: _isUploadingAvatar ? null : _pickAndUploadAvatar,
+              child: Container(
+                width: 38,
+                height: 38,
+                decoration: BoxDecoration(
+                  color: const Color(0xFFFF7A00),
+                  shape: BoxShape.circle,
+                  border: Border.all(
+                    color: const Color(0xFF141416),
+                    width: 3,
+                  ),
+                  boxShadow: [
+                    BoxShadow(
+                      color: Colors.black.withValues(alpha: 0.4),
+                      blurRadius: 6,
+                      offset: const Offset(0, 2),
+                    ),
+                  ],
+                ),
+                child: const Icon(
+                  Icons.camera_alt,
+                  color: Colors.white,
+                  size: 18,
+                ),
+              ),
+            ),
+          ),
+        ],
       ),
     );
   }

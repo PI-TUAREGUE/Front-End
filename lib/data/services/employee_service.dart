@@ -1,3 +1,4 @@
+import 'package:dio/dio.dart';
 import '../../models/employee.dart';
 import '../network/requester.dart';
 
@@ -77,6 +78,19 @@ class EmployeeService {
       'roles': role.label,
     };
     final response = await _requester.delete('/employees/$id/roles', body: body);
+    return Employee.fromJson(response as Map<String, dynamic>);
+  }
+
+  Future<Employee> updateAvatar(String id, String filePath) async {
+    final fileName = filePath.split('/').last;
+    final formData = FormData.fromMap({
+      'avatarUrl': await MultipartFile.fromFile(filePath, filename: fileName),
+    });
+
+    final response = await _requester.patchMultipart(
+      '/employees/$id/avatar',
+      formData,
+    );
     return Employee.fromJson(response as Map<String, dynamic>);
   }
 }

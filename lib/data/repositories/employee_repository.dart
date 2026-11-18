@@ -58,4 +58,11 @@ class EmployeeRepository {
   }) async {
     return await _employeeService.removeRole(id, role);
   }
+
+  Future<Employee> updateAvatar({
+    required String id,
+    required String filePath,
+  }) async {
+    return await _employeeService.updateAvatar(id, filePath);
+  }
 }
