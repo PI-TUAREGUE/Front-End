@@ -26,7 +26,7 @@ class InvitationService {
     }
 
     final response = await _requester.get(
-      '/invitations/employee',
+      '/invitations',
       queryParameters: queryParameters.isNotEmpty ? queryParameters : null,
     );
 

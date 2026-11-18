@@ -38,9 +38,11 @@ class ServiceService {
   Future<ServiceModel> create({
     required String name,
     String? avatarUrl,
+    ServiceStatus status = ServiceStatus.active,
   }) async {
     final body = <String, dynamic>{
       'name': name,
+      'status': status.label,
     };
     if (avatarUrl != null) {
       body['avatarUrl'] = avatarUrl;

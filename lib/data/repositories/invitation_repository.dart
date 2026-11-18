@@ -25,8 +25,8 @@ class InvitationRepository {
   Future<List<Invitation>> getMyInvitations({InvitationStatus? status}) async {
     final response = await _invitationService.findMyInvitations(status: status);
     return response
-        .whereType<Map<String, dynamic>>()
-        .map((item) => Invitation.fromJson(item))
+        .whereType<Map>()
+        .map((item) => Invitation.fromJson(Map<String, dynamic>.from(item)))
         .toList();
   }
 

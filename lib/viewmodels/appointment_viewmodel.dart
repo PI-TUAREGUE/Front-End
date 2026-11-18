@@ -2,23 +2,51 @@ import 'package:flutter/foundation.dart';
 import '../data/repositories/appointment_repository.dart';
 import '../models/appointment.dart';
 
+enum AgendaFilter {
+  forMe,
+  all,
+}
+
 class AppointmentViewModel extends ChangeNotifier {
   final AppointmentRepository _repository = AppointmentRepository();
 
   List<Appointment> _appointments = [];
   Appointment? _selectedAppointment;
   DateTime _selectedDate = DateTime.now();
+  AgendaFilter _filter = AgendaFilter.forMe;
+  String? _currentUserId;
   bool _isLoading = false;
   String? _errorMessage;
 
   List<Appointment> get appointments => _appointments;
   Appointment? get selectedAppointment => _selectedAppointment;
   DateTime get selectedDate => _selectedDate;
+  AgendaFilter get filter => _filter;
+  String? get currentUserId => _currentUserId;
   bool get isLoading => _isLoading;
   String? get errorMessage => _errorMessage;
 
+  void setFilter(AgendaFilter filter) {
+    _filter = filter;
+    notifyListeners();
+  }
+
+  void setCurrentUserId(String? id) {
+    _currentUserId = id;
+    notifyListeners();
+  }
+
+  List<Appointment> get filteredAppointments {
+    if (_filter == AgendaFilter.all || _currentUserId == null) {
+      return _appointments;
+    }
+    return _appointments
+        .where((a) => a.employee.any((e) => e.id == _currentUserId))
+        .toList();
+  }
+
   Map<int, List<Appointment>> get groupedAppointments =>
-      _repository.groupAppointmentsByHour(_appointments);
+      _repository.groupAppointmentsByHour(filteredAppointments);
 
   List<int> get hours {
     final list = groupedAppointments.keys.toList();

@@ -28,4 +28,20 @@ class AuthRepository {
   }) async {
     await _authService.resetPassword(token, newPassword);
   }
+
+  Future<String?> getCurrentUserId() async {
+    return await _authService.getCurrentUserId();
+  }
+
+  Future<String?> getCurrentUserName() async {
+    return await _authService.getCurrentUserName();
+  }
+
+  Future<List<String>> getCurrentUserRoles() async {
+    return await _authService.getCurrentUserRoles();
+  }
+
+  Future<bool> isCurrentUserAdmin() async {
+    return await _authService.isCurrentUserAdmin();
+  }
 }

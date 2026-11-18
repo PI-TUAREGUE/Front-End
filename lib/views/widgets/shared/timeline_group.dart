@@ -34,7 +34,7 @@ class TimelineGroup extends StatelessWidget {
                 margin: const EdgeInsets.only(left: 6, right: 16),
                 width: 2,
                 decoration: BoxDecoration(
-                  color: const Color(0xFFE59828), // Cor dourada do Figma
+                  color: const Color(0xFFE59828),
                   borderRadius: BorderRadius.circular(1),
                 ),
               ),

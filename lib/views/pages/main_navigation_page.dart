@@ -1,6 +1,9 @@
 import 'package:flutter/material.dart';
 import '../../data/repositories/app_preferences_repository.dart';
 import 'agenda_page.dart';
+import 'employees_page.dart';
+import 'profile_page.dart';
+import 'services_page.dart';
 
 class MainNavigationPage extends StatefulWidget {
   const MainNavigationPage({super.key});
@@ -15,24 +18,9 @@ class _MainNavigationPageState extends State<MainNavigationPage> {
 
   static const List<Widget> _pages = [
     AgendaPage(),
-    Center(
-      child: Text(
-        'Lista de Serviços',
-        style: TextStyle(color: Colors.white, fontSize: 18),
-      ),
-    ),
-    Center(
-      child: Text(
-        'Lista de Colaboradores',
-        style: TextStyle(color: Colors.white, fontSize: 18),
-      ),
-    ),
-    Center(
-      child: Text(
-        'Meu Perfil',
-        style: TextStyle(color: Colors.white, fontSize: 18),
-      ),
-    ),
+    ServicesPage(),
+    EmployeesPage(),
+    ProfilePage(),
   ];
 
   @override
