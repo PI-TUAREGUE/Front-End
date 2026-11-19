@@ -66,13 +66,13 @@ class AppointmentService {
       'clientTel': clientTel,
       'plate': plate,
       'car': car,
-      'startDate': startDate.toIso8601String(),
+      'startDate': startDate.toUtc().toIso8601String(),
       'employee': employeeIds,
       'service': serviceIds,
     };
 
     if (endDate != null) {
-      body['endDate'] = endDate.toIso8601String();
+      body['endDate'] = endDate.toUtc().toIso8601String();
     }
     if (invitedEmployeeIds != null && invitedEmployeeIds.isNotEmpty) {
       body['invitedEmployees'] = invitedEmployeeIds;
@@ -88,6 +88,26 @@ class AppointmentService {
     };
 
     final response = await _requester.patch('/schedulings/$id/status', body: body);
+    return Appointment.fromJson(response as Map<String, dynamic>);
+  }
+
+  Future<Appointment> updateStartDate(String id, DateTime startDate) async {
+    final body = {
+      'startDate': startDate.toUtc().toIso8601String(),
+    };
+
+    final response =
+        await _requester.patch('/schedulings/$id/startDate', body: body);
+    return Appointment.fromJson(response as Map<String, dynamic>);
+  }
+
+  Future<Appointment> updateEndDate(String id, DateTime endDate) async {
+    final body = {
+      'endDate': endDate.toUtc().toIso8601String(),
+    };
+
+    final response =
+        await _requester.patch('/schedulings/$id/endDate', body: body);
     return Appointment.fromJson(response as Map<String, dynamic>);
   }
 

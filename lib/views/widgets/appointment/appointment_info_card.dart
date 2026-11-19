@@ -3,10 +3,20 @@ import '../../../models/appointment.dart';
 
 class AppointmentInfoCard extends StatelessWidget {
   final Appointment appointment;
+  final bool canEditStatus;
+  final VoidCallback? onStatusTap;
+  final bool canEditDates;
+  final VoidCallback? onStartDateTap;
+  final VoidCallback? onEndDateTap;
 
   const AppointmentInfoCard({
     super.key,
     required this.appointment,
+    this.canEditStatus = false,
+    this.onStatusTap,
+    this.canEditDates = false,
+    this.onStartDateTap,
+    this.onEndDateTap,
   });
 
   String _formatHour(DateTime date) {
@@ -59,8 +69,12 @@ class AppointmentInfoCard extends StatelessWidget {
     );
   }
 
-  Widget _buildDateRow(DateTime date) {
-    return Row(
+  Widget _buildDateRow(
+    DateTime date, {
+    VoidCallback? onTap,
+    bool isEditable = false,
+  }) {
+    final row = Row(
       mainAxisSize: MainAxisSize.min,
       children: [
         _buildUnderlinedDateItem(_formatHour(date)),
@@ -68,8 +82,28 @@ class AppointmentInfoCard extends StatelessWidget {
         _buildUnderlinedDateItem(_formatDayMonth(date)),
         const SizedBox(width: 8),
         _buildUnderlinedDateItem(_formatYear(date)),
+        if (isEditable) ...[
+          const SizedBox(width: 6),
+          const Icon(
+            Icons.edit_calendar_outlined,
+            color: Color(0xFFFF7A00),
+            size: 15,
+          ),
+        ],
       ],
     );
+
+    if (isEditable && onTap != null) {
+      return InkWell(
+        onTap: onTap,
+        borderRadius: BorderRadius.circular(6),
+        child: Padding(
+          padding: const EdgeInsets.symmetric(vertical: 2, horizontal: 2),
+          child: row,
+        ),
+      );
+    }
+    return row;
   }
 
   Color _getStatusColor(SchedulingStatus status) {
@@ -122,7 +156,7 @@ class AppointmentInfoCard extends StatelessWidget {
   Widget build(BuildContext context) {
     final statusColor = _getStatusColor(appointment.status);
     final statusLabel = _getStatusLabel(appointment.status);
-    final createdDate = appointment.createdAt ?? appointment.startDate;
+    final createdDate = appointment.startDate;
     final finishedDate = appointment.endDate ?? appointment.startDate;
     final scheduledBy = appointment.employee.isNotEmpty
         ? appointment.employee.first.name
@@ -170,13 +204,17 @@ class AppointmentInfoCard extends StatelessWidget {
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               const Text(
-                'Criado em',
+                'Início',
                 style: TextStyle(
                   color: Colors.white60,
                   fontSize: 14,
                 ),
               ),
-              _buildDateRow(createdDate),
+              _buildDateRow(
+                createdDate,
+                onTap: onStartDateTap,
+                isEditable: canEditDates,
+              ),
             ],
           ),
           const Divider(
@@ -188,13 +226,17 @@ class AppointmentInfoCard extends StatelessWidget {
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               const Text(
-                'Finalizado',
+                'Data prevista',
                 style: TextStyle(
                   color: Colors.white60,
                   fontSize: 14,
                 ),
               ),
-              _buildDateRow(finishedDate),
+              _buildDateRow(
+                finishedDate,
+                onTap: onEndDateTap,
+                isEditable: canEditDates,
+              ),
             ],
           ),
           const Divider(
@@ -212,21 +254,38 @@ class AppointmentInfoCard extends StatelessWidget {
                   fontSize: 14,
                 ),
               ),
-              Container(
-                padding: const EdgeInsets.symmetric(
-                  horizontal: 14,
-                  vertical: 4,
-                ),
-                decoration: BoxDecoration(
-                  color: statusColor,
-                  borderRadius: BorderRadius.circular(6),
-                ),
-                child: Text(
-                  statusLabel,
-                  style: const TextStyle(
-                    color: Colors.white,
-                    fontSize: 12,
-                    fontWeight: FontWeight.bold,
+              InkWell(
+                onTap: canEditStatus ? onStatusTap : null,
+                borderRadius: BorderRadius.circular(6),
+                child: Container(
+                  padding: EdgeInsets.symmetric(
+                    horizontal: canEditStatus ? 10 : 14,
+                    vertical: 4,
+                  ),
+                  decoration: BoxDecoration(
+                    color: statusColor,
+                    borderRadius: BorderRadius.circular(6),
+                  ),
+                  child: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Text(
+                        statusLabel,
+                        style: const TextStyle(
+                          color: Colors.white,
+                          fontSize: 12,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                      if (canEditStatus) ...[
+                        const SizedBox(width: 4),
+                        const Icon(
+                          Icons.keyboard_arrow_down,
+                          color: Colors.white,
+                          size: 16,
+                        ),
+                      ],
+                    ],
                   ),
                 ),
               ),

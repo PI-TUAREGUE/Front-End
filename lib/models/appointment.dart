@@ -32,6 +32,8 @@ class Appointment {
   final List<ServiceModel> service;
   final DateTime? createdAt;
   final DateTime? updatedAt;
+  final String? owner;
+  final List<String> editors;
 
   const Appointment({
     required this.id,
@@ -46,10 +48,52 @@ class Appointment {
     this.endDate,
     this.createdAt,
     this.updatedAt,
+    this.owner,
+    this.editors = const [],
   });
 
   String get formattedTime =>
       '${startDate.hour.toString().padLeft(2, '0')}:${startDate.minute.toString().padLeft(2, '0')}';
+
+  bool canBeEditedBy({String? userId, bool isAdmin = false}) {
+    if (isAdmin) return true;
+    if (userId == null) return false;
+    return (owner != null && owner == userId) || editors.contains(userId);
+  }
+
+  Appointment copyWith({
+    String? id,
+    String? client,
+    String? clientTel,
+    String? plate,
+    String? car,
+    DateTime? startDate,
+    DateTime? endDate,
+    SchedulingStatus? status,
+    List<Employee>? employee,
+    List<ServiceModel>? service,
+    DateTime? createdAt,
+    DateTime? updatedAt,
+    String? owner,
+    List<String>? editors,
+  }) {
+    return Appointment(
+      id: id ?? this.id,
+      client: client ?? this.client,
+      clientTel: clientTel ?? this.clientTel,
+      plate: plate ?? this.plate,
+      car: car ?? this.car,
+      startDate: startDate ?? this.startDate,
+      endDate: endDate ?? this.endDate,
+      status: status ?? this.status,
+      employee: employee ?? this.employee,
+      service: service ?? this.service,
+      createdAt: createdAt ?? this.createdAt,
+      updatedAt: updatedAt ?? this.updatedAt,
+      owner: owner ?? this.owner,
+      editors: editors ?? this.editors,
+    );
+  }
 
   factory Appointment.fromJson(Map<String, dynamic> json) {
     return Appointment(
@@ -103,6 +147,19 @@ class Appointment {
       updatedAt: json['updatedAt'] != null
           ? DateTime.tryParse(json['updatedAt'] as String)
           : null,
+      owner: json['owner'] is Map
+          ? (json['owner'] as Map)['_id']?.toString()
+          : json['owner']?.toString(),
+      editors: (json['editors'] as List<dynamic>?)
+              ?.map((item) {
+                if (item is Map) {
+                  return (item['_id'] ?? item['id'] ?? '').toString();
+                }
+                return item.toString();
+              })
+              .where((s) => s.isNotEmpty)
+              .toList() ??
+          [],
     );
   }
 
@@ -112,8 +169,8 @@ class Appointment {
       'clientTel': clientTel,
       'plate': plate,
       'car': car,
-      'startDate': startDate.toIso8601String(),
-      if (endDate != null) 'endDate': endDate!.toIso8601String(),
+      'startDate': startDate.toUtc().toIso8601String(),
+      if (endDate != null) 'endDate': endDate!.toUtc().toIso8601String(),
       'status': status.label,
       'employee': employee.map((e) => e.id).toList(),
       'service': service.map((s) => s.id).toList(),

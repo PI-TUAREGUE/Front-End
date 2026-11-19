@@ -162,6 +162,50 @@ class AppointmentViewModel extends ChangeNotifier {
     }
   }
 
+  Future<bool> updateStartDate({
+    required String id,
+    required DateTime startDate,
+  }) async {
+    _setLoading(true);
+    _clearError();
+
+    try {
+      final updated = await _repository.updateStartDate(
+        id: id,
+        startDate: startDate,
+      );
+      _replaceAppointment(updated);
+      return true;
+    } catch (e) {
+      _errorMessage = e.toString();
+      return false;
+    } finally {
+      _setLoading(false);
+    }
+  }
+
+  Future<bool> updateEndDate({
+    required String id,
+    required DateTime endDate,
+  }) async {
+    _setLoading(true);
+    _clearError();
+
+    try {
+      final updated = await _repository.updateEndDate(
+        id: id,
+        endDate: endDate,
+      );
+      _replaceAppointment(updated);
+      return true;
+    } catch (e) {
+      _errorMessage = e.toString();
+      return false;
+    } finally {
+      _setLoading(false);
+    }
+  }
+
   Future<List<int>?> downloadReceipt(String id) async {
     _setLoading(true);
     _clearError();
