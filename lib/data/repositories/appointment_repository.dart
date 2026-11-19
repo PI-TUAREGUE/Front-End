@@ -55,6 +55,36 @@ class AppointmentRepository {
     return await _appointmentService.updateStatus(id, status);
   }
 
+  Future<Appointment> updateStartDate({
+    required String id,
+    required DateTime startDate,
+  }) async {
+    return await _appointmentService.updateStartDate(id, startDate);
+  }
+
+  Future<Appointment> updateEndDate({
+    required String id,
+    required DateTime endDate,
+  }) async {
+    return await _appointmentService.updateEndDate(id, endDate);
+  }
+
+  Future<Appointment> reschedule({
+    required String id,
+    required DateTime newStartDate,
+    required DateTime newEndDate,
+    DateTime? currentEndDate,
+  }) async {
+    final effectiveOldEndDate = currentEndDate ?? newStartDate;
+    if (!newStartDate.isBefore(effectiveOldEndDate)) {
+      await _appointmentService.updateEndDate(id, newEndDate);
+      return await _appointmentService.updateStartDate(id, newStartDate);
+    } else {
+      await _appointmentService.updateStartDate(id, newStartDate);
+      return await _appointmentService.updateEndDate(id, newEndDate);
+    }
+  }
+
   Map<int, List<Appointment>> groupAppointmentsByHour(List<Appointment> appointments) {
     final Map<int, List<Appointment>> grouped = {};
     for (var item in appointments) {

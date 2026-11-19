@@ -204,6 +204,8 @@ class _AgendaPageState extends State<AgendaPage> with WidgetsBindingObserver {
                                       .map(
                                         (item) => ScheduleCard(
                                           appointment: item,
+                                          onReturn: () =>
+                                              _viewModel.loadAppointments(),
                                         ),
                                       )
                                       .toList(),

@@ -5,23 +5,29 @@ import '../../pages/appointment_details_page.dart';
 
 class ScheduleCard extends StatelessWidget {
   final Appointment appointment;
+  final VoidCallback? onReturn;
 
-  const ScheduleCard({super.key, required this.appointment});
+  const ScheduleCard({
+    super.key,
+    required this.appointment,
+    this.onReturn,
+  });
 
   @override
   Widget build(BuildContext context) {
     return InkWell(
-      borderRadius: BorderRadius.circular(
-        16,
-      ), 
-      onTap: () {
-        Navigator.push(
+      borderRadius: BorderRadius.circular(16),
+      onTap: () async {
+        final changed = await Navigator.push<bool>(
           context,
           MaterialPageRoute(
             builder: (context) =>
                 AppointmentDetailsPage(appointment: appointment),
           ),
         );
+        if (changed == true && onReturn != null) {
+          onReturn!();
+        }
       },
       child: Container(
         padding: const EdgeInsets.all(16),
