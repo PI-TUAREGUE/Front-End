@@ -5,6 +5,9 @@ import '../../models/service.dart';
 import '../../viewmodels/appointment_viewmodel.dart';
 import '../../viewmodels/employee_viewmodel.dart';
 import '../../viewmodels/service_viewmodel.dart';
+import '../widgets/appointment/create_appointment_date_time_picker.dart';
+import '../widgets/appointment/create_appointment_employee_picker.dart';
+import '../widgets/appointment/create_appointment_services_picker.dart';
 import '../widgets/auth/auth_button.dart';
 import '../widgets/auth/auth_text_field.dart';
 
@@ -57,72 +60,39 @@ class _CreateAppointmentPageState extends State<CreateAppointmentPage> {
     _clientTelController.dispose();
     _plateController.dispose();
     _carController.dispose();
+    _appointmentViewModel.dispose();
+    _serviceViewModel.dispose();
+    _employeeViewModel.dispose();
     super.dispose();
   }
 
-  Future<void> _pickDate() async {
-    final picked = await showDatePicker(
-      context: context,
-      initialDate: _selectedDate,
-      firstDate: DateTime(2020),
-      lastDate: DateTime(2035),
-      builder: (context, child) {
-        return Theme(
-          data: ThemeData.dark().copyWith(
-            colorScheme: const ColorScheme.dark(
-              primary: Color(0xFFFF7A00),
-              surface: Color(0xFF1E1E22),
-            ),
-          ),
-          child: child!,
-        );
-      },
+  void _showMessage(String message) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text(message),
+        backgroundColor: const Color(0xFFFF7A00),
+      ),
     );
-    if (picked != null) {
-      setState(() => _selectedDate = picked);
-    }
   }
 
-  Future<void> _pickStartTime() async {
-    final picked = await showTimePicker(
-      context: context,
-      initialTime: _selectedStartTime,
-      builder: (context, child) {
-        return Theme(
-          data: ThemeData.dark().copyWith(
-            colorScheme: const ColorScheme.dark(
-              primary: Color(0xFFFF7A00),
-              surface: Color(0xFF1E1E22),
-            ),
-          ),
-          child: child!,
-        );
-      },
-    );
-    if (picked != null) {
-      setState(() => _selectedStartTime = picked);
-    }
+  void _toggleService(String serviceId) {
+    setState(() {
+      if (_selectedServiceIds.contains(serviceId)) {
+        _selectedServiceIds.remove(serviceId);
+      } else {
+        _selectedServiceIds.add(serviceId);
+      }
+    });
   }
 
-  Future<void> _pickEndTime() async {
-    final picked = await showTimePicker(
-      context: context,
-      initialTime: _selectedEndTime,
-      builder: (context, child) {
-        return Theme(
-          data: ThemeData.dark().copyWith(
-            colorScheme: const ColorScheme.dark(
-              primary: Color(0xFFFF7A00),
-              surface: Color(0xFF1E1E22),
-            ),
-          ),
-          child: child!,
-        );
-      },
-    );
-    if (picked != null) {
-      setState(() => _selectedEndTime = picked);
-    }
+  void _toggleEmployee(String employeeId) {
+    setState(() {
+      if (_selectedInvitedEmployeeIds.contains(employeeId)) {
+        _selectedInvitedEmployeeIds.remove(employeeId);
+      } else {
+        _selectedInvitedEmployeeIds.add(employeeId);
+      }
+    });
   }
 
   Future<void> _handleSave() async {
@@ -178,28 +148,24 @@ class _CreateAppointmentPageState extends State<CreateAppointmentPage> {
     }
   }
 
-  void _showMessage(String message) {
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        backgroundColor: const Color(0xFFFF7A00),
-        content: Text(message),
-      ),
-    );
-  }
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xFF000000),
+      backgroundColor: Colors.black,
       appBar: AppBar(
-        backgroundColor: const Color(0xFF141416),
+        backgroundColor: Colors.black,
         elevation: 0,
+        centerTitle: true,
         leading: IconButton(
-          icon: const Icon(Icons.chevron_left, color: Color(0xFFFF7A00), size: 28),
+          icon: const Icon(
+            Icons.arrow_back_ios_new,
+            color: Colors.white,
+            size: 20,
+          ),
           onPressed: () => Navigator.pop(context),
         ),
         title: const Text(
-          'Realizar Agendamento',
+          'Novo Agendamento',
           style: TextStyle(
             color: Colors.white,
             fontSize: 18,
@@ -208,23 +174,24 @@ class _CreateAppointmentPageState extends State<CreateAppointmentPage> {
         ),
       ),
       body: SingleChildScrollView(
-        padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 24),
+        physics: const BouncingScrollPhysics(),
+        padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
         child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
+          crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
             AuthTextField(
               label: 'Nome do Cliente',
-              hint: 'Ex: João Souza',
+              hint: 'Ex: Carlos Silva',
               icon: Icons.person_outline,
               controller: _clientController,
             ),
             const SizedBox(height: 18),
             AuthTextField(
               label: 'Telefone do Cliente',
-              hint: 'Ex: 11999998888',
+              hint: 'Ex: (11) 98765-4321',
               icon: Icons.phone_outlined,
-              keyboardType: TextInputType.phone,
               controller: _clientTelController,
+              keyboardType: TextInputType.phone,
             ),
             const SizedBox(height: 18),
             AuthTextField(
@@ -241,248 +208,28 @@ class _CreateAppointmentPageState extends State<CreateAppointmentPage> {
               controller: _plateController,
             ),
             const SizedBox(height: 24),
-            const Text(
-              'Data do Agendamento',
-              style: TextStyle(
-                color: Colors.white,
-                fontSize: 14,
-                fontWeight: FontWeight.w600,
-              ),
-            ),
-            const SizedBox(height: 10),
-            GestureDetector(
-              onTap: _pickDate,
-              child: Container(
-                width: double.infinity,
-                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
-                decoration: BoxDecoration(
-                  color: const Color(0xFF0F0F0F),
-                  borderRadius: BorderRadius.circular(20),
-                  border: Border.all(color: Colors.white24),
-                ),
-                child: Row(
-                  children: [
-                    const Icon(
-                      Icons.calendar_today_outlined,
-                      color: Color(0xFFFF7A00),
-                      size: 18,
-                    ),
-                    const SizedBox(width: 12),
-                    Text(
-                      '${_selectedDate.day.toString().padLeft(2, '0')}/${_selectedDate.month.toString().padLeft(2, '0')}/${_selectedDate.year}',
-                      style: const TextStyle(color: Colors.white, fontSize: 14),
-                    ),
-                    const Spacer(),
-                    const Icon(
-                      Icons.edit_calendar_outlined,
-                      color: Colors.white38,
-                      size: 18,
-                    ),
-                  ],
-                ),
-              ),
-            ),
-            const SizedBox(height: 18),
-            Row(
-              children: [
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      const Text(
-                        'Início',
-                        style: TextStyle(
-                          color: Colors.white,
-                          fontSize: 14,
-                          fontWeight: FontWeight.w600,
-                        ),
-                      ),
-                      const SizedBox(height: 10),
-                      GestureDetector(
-                        onTap: _pickStartTime,
-                        child: Container(
-                          padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 14),
-                          decoration: BoxDecoration(
-                            color: const Color(0xFF0F0F0F),
-                            borderRadius: BorderRadius.circular(20),
-                            border: Border.all(color: Colors.white24),
-                          ),
-                          child: Row(
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            children: [
-                              const Icon(
-                                Icons.access_time,
-                                color: Color(0xFFFF7A00),
-                                size: 18,
-                              ),
-                              const SizedBox(width: 8),
-                              Text(
-                                '${_selectedStartTime.hour.toString().padLeft(2, '0')}:${_selectedStartTime.minute.toString().padLeft(2, '0')}',
-                                style: const TextStyle(color: Colors.white, fontSize: 14),
-                              ),
-                            ],
-                          ),
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-                const SizedBox(width: 14),
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      const Text(
-                        'Término',
-                        style: TextStyle(
-                          color: Colors.white,
-                          fontSize: 14,
-                          fontWeight: FontWeight.w600,
-                        ),
-                      ),
-                      const SizedBox(height: 10),
-                      GestureDetector(
-                        onTap: _pickEndTime,
-                        child: Container(
-                          padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 14),
-                          decoration: BoxDecoration(
-                            color: const Color(0xFF0F0F0F),
-                            borderRadius: BorderRadius.circular(20),
-                            border: Border.all(color: Colors.white24),
-                          ),
-                          child: Row(
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            children: [
-                              const Icon(
-                                Icons.access_time_filled,
-                                color: Colors.white54,
-                                size: 18,
-                              ),
-                              const SizedBox(width: 8),
-                              Text(
-                                '${_selectedEndTime.hour.toString().padLeft(2, '0')}:${_selectedEndTime.minute.toString().padLeft(2, '0')}',
-                                style: const TextStyle(color: Colors.white, fontSize: 14),
-                              ),
-                            ],
-                          ),
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-              ],
+            CreateAppointmentDateTimePicker(
+              selectedDate: _selectedDate,
+              selectedStartTime: _selectedStartTime,
+              selectedEndTime: _selectedEndTime,
+              onDateChanged: (date) => setState(() => _selectedDate = date),
+              onStartTimeChanged: (time) =>
+                  setState(() => _selectedStartTime = time),
+              onEndTimeChanged: (time) =>
+                  setState(() => _selectedEndTime = time),
             ),
             const SizedBox(height: 24),
-            const Text(
-              'Serviços',
-              style: TextStyle(
-                color: Colors.white,
-                fontSize: 14,
-                fontWeight: FontWeight.w600,
-              ),
-            ),
-            const SizedBox(height: 10),
-            ListenableBuilder(
-              listenable: _serviceViewModel,
-              builder: (context, _) {
-                if (_serviceViewModel.isLoading) {
-                  return const Center(child: CircularProgressIndicator(color: Color(0xFFFF7A00)));
-                }
-                final services = _serviceViewModel.services
-                    .where((s) => s.status == ServiceStatus.active)
-                    .toList();
-                if (services.isEmpty) {
-                  return const Text(
-                    'Nenhum serviço ativo disponível no momento.',
-                    style: TextStyle(color: Colors.white54, fontSize: 13),
-                  );
-                }
-                return Wrap(
-                  spacing: 8,
-                  runSpacing: 8,
-                  children: services.map((s) {
-                    final isSelected = _selectedServiceIds.contains(s.id);
-                    return FilterChip(
-                      selected: isSelected,
-                      label: Text(s.name),
-                      selectedColor: const Color(0xFFFF7A00),
-                      backgroundColor: const Color(0xFF28282B),
-                      labelStyle: TextStyle(
-                        color: isSelected ? Colors.black : Colors.white,
-                        fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
-                      ),
-                      side: BorderSide.none,
-                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
-                      onSelected: (selected) {
-                        setState(() {
-                          if (selected) {
-                            _selectedServiceIds.add(s.id);
-                          } else {
-                            _selectedServiceIds.remove(s.id);
-                          }
-                        });
-                      },
-                    );
-                  }).toList(),
-                );
-              },
+            CreateAppointmentServicesPicker(
+              serviceViewModel: _serviceViewModel,
+              selectedServiceIds: _selectedServiceIds,
+              onServiceToggled: _toggleService,
             ),
             const SizedBox(height: 24),
-            const Text(
-              'Convidar outros mecânicos',
-              style: TextStyle(
-                color: Colors.white,
-                fontSize: 14,
-                fontWeight: FontWeight.w600,
-              ),
-            ),
-            const SizedBox(height: 10),
-            ListenableBuilder(
-              listenable: _employeeViewModel,
-              builder: (context, _) {
-                if (_employeeViewModel.isLoading) {
-                  return const Center(child: CircularProgressIndicator(color: Color(0xFFFF7A00)));
-                }
-                final employees = _employeeViewModel.employees
-                    .where((e) =>
-                        e.id != _currentUserId &&
-                        e.status == EmployeeStatus.active)
-                    .toList();
-                if (employees.isEmpty) {
-                  return const Text(
-                    'Nenhum outro mecânico ativo disponível para convidar.',
-                    style: TextStyle(color: Colors.white54, fontSize: 13),
-                  );
-                }
-                return Wrap(
-                  spacing: 8,
-                  runSpacing: 8,
-                  children: employees.map((e) {
-                    final isSelected = _selectedInvitedEmployeeIds.contains(e.id);
-                    return FilterChip(
-                      selected: isSelected,
-                      label: Text(e.name),
-                      selectedColor: const Color(0xFFFF7A00),
-                      backgroundColor: const Color(0xFF28282B),
-                      labelStyle: TextStyle(
-                        color: isSelected ? Colors.black : Colors.white,
-                        fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
-                      ),
-                      side: BorderSide.none,
-                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
-                      onSelected: (selected) {
-                        setState(() {
-                          if (selected) {
-                            _selectedInvitedEmployeeIds.add(e.id);
-                          } else {
-                            _selectedInvitedEmployeeIds.remove(e.id);
-                          }
-                        });
-                      },
-                    );
-                  }).toList(),
-                );
-              },
+            CreateAppointmentEmployeePicker(
+              employeeViewModel: _employeeViewModel,
+              currentUserId: _currentUserId,
+              selectedInvitedEmployeeIds: _selectedInvitedEmployeeIds,
+              onEmployeeToggled: _toggleEmployee,
             ),
             const SizedBox(height: 32),
             ListenableBuilder(
@@ -495,6 +242,7 @@ class _CreateAppointmentPageState extends State<CreateAppointmentPage> {
                 );
               },
             ),
+            const SizedBox(height: 20),
           ],
         ),
       ),
