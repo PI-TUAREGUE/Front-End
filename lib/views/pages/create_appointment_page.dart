@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import '../../data/repositories/auth_repository.dart';
+import '../../models/service.dart';
 import '../../viewmodels/appointment_viewmodel.dart';
 import '../../viewmodels/employee_viewmodel.dart';
 import '../../viewmodels/service_viewmodel.dart';
@@ -45,7 +46,7 @@ class _CreateAppointmentPageState extends State<CreateAppointmentPage> {
       if (mounted) setState(() => _currentUserId = id);
     });
 
-    _serviceViewModel.loadServices();
+    _serviceViewModel.loadServices(status: ServiceStatus.active);
     _employeeViewModel.loadEmployees();
   }
 
@@ -386,10 +387,12 @@ class _CreateAppointmentPageState extends State<CreateAppointmentPage> {
                 if (_serviceViewModel.isLoading) {
                   return const Center(child: CircularProgressIndicator(color: Color(0xFFFF7A00)));
                 }
-                final services = _serviceViewModel.services;
+                final services = _serviceViewModel.services
+                    .where((s) => s.status == ServiceStatus.active)
+                    .toList();
                 if (services.isEmpty) {
                   return const Text(
-                    'Nenhum serviço cadastrado no momento.',
+                    'Nenhum serviço ativo disponível no momento.',
                     style: TextStyle(color: Colors.white54, fontSize: 13),
                   );
                 }

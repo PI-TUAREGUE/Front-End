@@ -84,6 +84,26 @@ class ServiceModel {
     return '$prefix-$year-$suffix';
   }
 
+  ServiceModel copyWith({
+    String? id,
+    String? name,
+    ServiceStatus? status,
+    String? avatarUrl,
+    String? createdByName,
+    DateTime? createdAt,
+    DateTime? updatedAt,
+  }) {
+    return ServiceModel(
+      id: id ?? this.id,
+      name: name ?? this.name,
+      status: status ?? this.status,
+      avatarUrl: avatarUrl ?? this.avatarUrl,
+      createdByName: createdByName ?? this.createdByName,
+      createdAt: createdAt ?? this.createdAt,
+      updatedAt: updatedAt ?? this.updatedAt,
+    );
+  }
+
   Map<String, dynamic> toJson() {
     return {
       'name': name,
