@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import '../../data/repositories/auth_repository.dart';
+import '../../models/employee.dart';
+import '../../models/service.dart';
 import '../../viewmodels/appointment_viewmodel.dart';
 import '../../viewmodels/employee_viewmodel.dart';
 import '../../viewmodels/service_viewmodel.dart';
@@ -45,8 +47,8 @@ class _CreateAppointmentPageState extends State<CreateAppointmentPage> {
       if (mounted) setState(() => _currentUserId = id);
     });
 
-    _serviceViewModel.loadServices();
-    _employeeViewModel.loadEmployees();
+    _serviceViewModel.loadServices(status: ServiceStatus.active);
+    _employeeViewModel.loadEmployees(status: EmployeeStatus.active);
   }
 
   @override
@@ -386,10 +388,12 @@ class _CreateAppointmentPageState extends State<CreateAppointmentPage> {
                 if (_serviceViewModel.isLoading) {
                   return const Center(child: CircularProgressIndicator(color: Color(0xFFFF7A00)));
                 }
-                final services = _serviceViewModel.services;
+                final services = _serviceViewModel.services
+                    .where((s) => s.status == ServiceStatus.active)
+                    .toList();
                 if (services.isEmpty) {
                   return const Text(
-                    'Nenhum serviço cadastrado no momento.',
+                    'Nenhum serviço ativo disponível no momento.',
                     style: TextStyle(color: Colors.white54, fontSize: 13),
                   );
                 }
@@ -440,11 +444,13 @@ class _CreateAppointmentPageState extends State<CreateAppointmentPage> {
                   return const Center(child: CircularProgressIndicator(color: Color(0xFFFF7A00)));
                 }
                 final employees = _employeeViewModel.employees
-                    .where((e) => e.id != _currentUserId)
+                    .where((e) =>
+                        e.id != _currentUserId &&
+                        e.status == EmployeeStatus.active)
                     .toList();
                 if (employees.isEmpty) {
                   return const Text(
-                    'Nenhum outro mecânico disponível para convidar.',
+                    'Nenhum outro mecânico ativo disponível para convidar.',
                     style: TextStyle(color: Colors.white54, fontSize: 13),
                   );
                 }

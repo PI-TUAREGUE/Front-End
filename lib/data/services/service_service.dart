@@ -56,7 +56,7 @@ class ServiceService {
     final body = {
       'status': status.label,
     };
-    final response = await _requester.patch('/services/$id', body: body);
+    final response = await _requester.patch('/services/$id/status', body: body);
     return ServiceModel.fromJson(response as Map<String, dynamic>);
   }
 }

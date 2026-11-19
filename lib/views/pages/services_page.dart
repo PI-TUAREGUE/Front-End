@@ -8,6 +8,7 @@ import '../widgets/shared/empty_state_widget.dart';
 import '../widgets/shared/filter_dropdown.dart';
 import '../widgets/shared/primary_add_button.dart';
 import '../widgets/shared/timeline_group.dart';
+import 'service_details_page.dart';
 
 enum ServiceFilterOption {
   date('Data'),
@@ -190,6 +191,18 @@ class _ServicesPageState extends State<ServicesPage> {
                               .map(
                                 (service) => ServiceCard(
                                   service: service,
+                                  onTap: () async {
+                                    final changed =
+                                        await Navigator.of(context).push<bool>(
+                                      MaterialPageRoute(
+                                        builder: (_) =>
+                                            ServiceDetailsPage(service: service),
+                                      ),
+                                    );
+                                    if (changed == true) {
+                                      _viewModel.loadServices();
+                                    }
+                                  },
                                 ),
                               )
                               .toList(),
